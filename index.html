@@ -61,6 +61,18 @@
     .page-footer .support a:hover { text-decoration: underline; }
     .popup-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
     .popup-overlay.show { display: flex; }
+    /* Save image modal */
+    #saveModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:10000; flex-direction:column; align-items:center; justify-content:flex-start; overflow-y:auto; padding:16px 12px 32px; }
+    #saveModal.show { display:flex; }
+    .save-modal-hint { color:white; text-align:center; margin-bottom:14px; padding:0 8px; }
+    .save-modal-hint .hint-title { font-size:17px; font-weight:800; margin-bottom:6px; }
+    .save-modal-hint .hint-steps { font-size:14px; line-height:1.8; color:rgba(255,255,255,.85); }
+    .save-modal-hint .hint-steps b { color:#FFD580; }
+    #saveModalImg { max-width:100%; border-radius:12px; display:block; box-shadow:0 4px 32px rgba(0,0,0,.5); touch-action:pinch-zoom; }
+    .save-modal-close { margin-top:16px; background:rgba(255,255,255,.15); border:1.5px solid rgba(255,255,255,.3); color:white; padding:10px 28px; border-radius:10px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer; }
+    .save-modal-close:hover { background:rgba(255,255,255,.25); }
+    .save-modal-dl { margin-top:10px; background:#27AE60; border:none; color:white; padding:10px 28px; border-radius:10px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer; display:none; }
+    .save-modal-dl:hover { background:#1E9450; }
     .popup-box { background: white; border-radius: 20px; padding: 34px 26px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 24px 64px rgba(0,0,0,.3); animation: popIn .3s ease; }
     @keyframes popIn { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
     .popup-emoji { font-size: 50px; margin-bottom: 14px; }
@@ -130,11 +142,11 @@
       <h3>🎯 Hiệu chỉnh vị trí overlay — mở URL: ?calibrate=1</h3>
       <div class="cr"><label>Tâm X (vòng)</label><input type="range" id="cCX" min="0" max="100" step="0.1" value="26.3" oninput="updateCalib()"><span class="cval" id="vCX">26.3%</span></div>
       <div class="cr"><label>Tâm Y (vòng)</label><input type="range" id="cCY" min="0" max="100" step="0.1" value="57.6" oninput="updateCalib()"><span class="cval" id="vCY">57.6%</span></div>
-      <div class="cr"><label>Bán kính</label><input type="range" id="cCR" min="1" max="20" step="0.1" value="10.8" oninput="updateCalib()"><span class="cval" id="vCR">10.8%</span></div>
+      <div class="cr"><label>Bán kính</label><input type="range" id="cCR" min="1" max="20" step="0.1" value="8.5" oninput="updateCalib()"><span class="cval" id="vCR">8.5%</span></div>
       <div class="cr"><label>Tên X</label><input type="range" id="cNX" min="0" max="100" step="0.1" value="38.7" oninput="updateCalib()"><span class="cval" id="vNX">38.7%</span></div>
       <div class="cr"><label>Tên Y</label><input type="range" id="cNY" min="0" max="100" step="0.1" value="56.4" oninput="updateCalib()"><span class="cval" id="vNY">56.4%</span></div>
       <div class="cr"><label>Lớp Y</label><input type="range" id="cLY" min="0" max="100" step="0.1" value="59.9" oninput="updateCalib()"><span class="cval" id="vLY">59.9%</span></div>
-      <div class="cr"><label>Chiều rộng tên</label><input type="range" id="cNW" min="10" max="70" step="0.5" value="44" oninput="updateCalib()"><span class="cval" id="vNW">44%</span></div>
+      <div class="cr"><label>Chiều rộng tên</label><input type="range" id="cNW" min="10" max="70" step="0.5" value="27" oninput="updateCalib()"><span class="cval" id="vNW">27%</span></div>
       <button class="calib-copy" onclick="copyCalib()">📋 Copy giá trị → paste vào code (dòng POS)</button>
     </div>
   </div>
@@ -149,6 +161,20 @@
     Nếu gặp khó khăn, nhấn Zalo
     <a href="https://zalo.me/0974262599" target="_blank">0974.262.599</a> để được hỗ trợ.
   </div>
+</div>
+
+<!-- Save image modal (Zalo/FB WebView & mobile fallback) -->
+<div id="saveModal">
+  <div class="save-modal-hint">
+    <div class="hint-title">🖼 Thiệp của bạn đã sẵn sàng!</div>
+    <div class="hint-steps" id="saveHintText">
+      <b>Nhấn giữ vào ảnh bên dưới</b><br>
+      → Chọn <b>"Lưu ảnh"</b> / <b>"Lưu vào thư viện"</b>
+    </div>
+  </div>
+  <img id="saveModalImg" src="" alt="Thiệp mời">
+  <button class="save-modal-dl" id="saveModalDl">⬇ Tải xuống (máy tính)</button>
+  <button class="save-modal-close" onclick="closeSaveModal()">✕ Đóng</button>
 </div>
 
 <div class="popup-overlay" id="thanksPopup">
@@ -169,11 +195,11 @@
 let POS = {
   cX: 26.3,  // tâm vòng tròn ảnh, % theo chiều ngang
   cY: 57.6,  // tâm vòng tròn ảnh, % theo chiều dọc
-  cR: 10.8,  // bán kính, % chiều ngang
+  cR:  8.5,  // bán kính, % chiều ngang  (↓ nhỏ hơn để cân đối)
   nX: 38.7,  // tên: cạnh trái, %
   nY: 56.4,  // tên: baseline, %
   lY: 59.9,  // lớp: baseline, %
-  nW: 44.0,  // tên: chiều rộng tối đa, %
+  nW: 27.0,  // tên: chiều rộng tối đa, % (↓ bớt tràn sang phải)
 };
 
 let cropImg=null, cropZoom=1, cropMinZoom=1, cropOX=0, cropOY=0;
@@ -355,7 +381,7 @@ function drawOnTemplate(ctx,W,H,name,cls){
   }
 
   // Tên
-  const fs=Math.round(W*0.036);
+  const fs=Math.round(W*0.026);  // ↓ cỡ chữ tên (36→26‰)
   ctx.font=`700 ${fs}px "Be Vietnam Pro",sans-serif`;
   ctx.textAlign='left';
   const lines=wrapLines(ctx,name,nW);
@@ -365,7 +391,7 @@ function drawOnTemplate(ctx,W,H,name,cls){
   lines.forEach((ln,i)=>ctx.fillText(ln,nX,nY+i*fs*1.3));
 
   // Lớp
-  const lfs=Math.round(W*0.030);
+  const lfs=Math.round(W*0.021);  // ↓ cỡ chữ lớp (30→21‰)
   const lActY=nY+(lines.length-1)*fs*1.3+lfs*2.1;
   const prefix='Một cục cưng của tập thể ';
   ctx.font=`400 ${lfs}px "Be Vietnam Pro",sans-serif`;
@@ -414,21 +440,94 @@ function wrapLines(ctx,text,maxW){
 function pill(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
+// ---- Detect environment ----
+function isDesktop(){ return !/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent); }
+function isInWebView(){
+  const ua=navigator.userAgent;
+  return /FBAV|FBAN|FB_IAB|Instagram|ZaloApp|Zalo\/|Line\/|KAKAOTALK|MicroMessenger/i.test(ua)
+    || (!isDesktop() && !window.chrome && !/(CriOS|FxiOS|Safari)/i.test(ua));
+}
+
 async function downloadCard(){
   await document.fonts.ready;
+
+  // 1. Render thiệp ra canvas
   const tmp=document.createElement('canvas');
   const name=document.getElementById('nameInput').value.trim()||'TÊN CỦA BẠN';
   const cls=document.getElementById('classSelect').value;
   if(templateImg){
     const TW=templateImg.naturalWidth||templateImg.width;
     const TH=templateImg.naturalHeight||templateImg.height;
-    tmp.width=TW;tmp.height=TH;
+    tmp.width=TW; tmp.height=TH;
     drawOnTemplate(tmp.getContext('2d'),TW,TH,name,cls);
-  } else {tmp.width=790;tmp.height=1120;drawFallback(tmp.getContext('2d'),790,1120,name,cls);}
-  const a=document.createElement('a');
-  a.download='thiep-moi-chuyen-tau-ve-thanh-xuan.png';
-  a.href=tmp.toDataURL('image/png');a.click();
-  setTimeout(()=>document.getElementById('thanksPopup').classList.add('show'),600);
+  } else {
+    tmp.width=790; tmp.height=1120;
+    drawFallback(tmp.getContext('2d'),790,1120,name,cls);
+  }
+
+  const filename='thiep-moi-tbh20.jpg';
+
+  // 2. DESKTOP → download thẳng
+  if(isDesktop()){
+    const a=document.createElement('a');
+    a.download=filename;
+    a.href=tmp.toDataURL('image/jpeg',0.95);
+    a.click();
+    setTimeout(()=>document.getElementById('thanksPopup').classList.add('show'),600);
+    return;
+  }
+
+  // 3. MOBILE — thử Web Share API (iOS Safari, Android Chrome)
+  // Mở share sheet hệ thống → người dùng chọn Lưu ảnh / Save to Photos
+  if(navigator.share && navigator.canShare){
+    try {
+      const blob=await new Promise(res=>tmp.toBlob(res,'image/jpeg',0.95));
+      const file=new File([blob],filename,{type:'image/jpeg'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'Thiệp mời - Chuyến Tàu Về Thanh Xuân'});
+        setTimeout(()=>document.getElementById('thanksPopup').classList.add('show'),400);
+        return;
+      }
+    } catch(e){
+      if(e.name==='AbortError') return; // user cancelled share sheet — không làm gì thêm
+      // share thất bại → xuống fallback
+    }
+  }
+
+  // 4. FALLBACK — hiện ảnh full màn hình, nhấn giữ để lưu
+  showSaveModal(tmp.toDataURL('image/jpeg',0.95), filename);
+}
+
+function showSaveModal(dataURL, filename){
+  const modal=document.getElementById('saveModal');
+  const img=document.getElementById('saveModalImg');
+  img.src=dataURL;
+
+  // Hướng dẫn theo nền tảng
+  const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const hint=document.getElementById('saveHintText');
+  if(isIOS){
+    hint.innerHTML='<b>Nhấn giữ vào ảnh bên dưới</b><br>→ Chọn <b>"Thêm vào Ảnh"</b> hoặc <b>"Lưu ảnh"</b>';
+  } else if(isInWebView()){
+    hint.innerHTML='<b>Nhấn giữ vào ảnh bên dưới</b><br>→ Chọn <b>"Lưu ảnh"</b> hoặc <b>"Tải ảnh xuống"</b><br><span style="font-size:12px;color:rgba(255,255,255,.6)">Hoặc mở link bằng trình duyệt Chrome/Safari để lưu dễ hơn</span>';
+  } else {
+    hint.innerHTML='<b>Nhấn giữ vào ảnh bên dưới</b><br>→ Chọn <b>"Lưu ảnh vào thư viện"</b>';
+  }
+
+  // Nút download cho desktop (dự phòng)
+  const dlBtn=document.getElementById('saveModalDl');
+  if(isDesktop()){
+    dlBtn.style.display='block';
+    dlBtn.onclick=()=>{ const a=document.createElement('a'); a.download=filename; a.href=dataURL; a.click(); };
+  }
+
+  modal.classList.add('show');
+  setTimeout(()=>document.getElementById('thanksPopup').classList.add('show'),1000);
+}
+
+function closeSaveModal(){
+  document.getElementById('saveModal').classList.remove('show');
+  document.getElementById('saveModalImg').src='';
 }
 
 scheduleRender();
