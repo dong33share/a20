@@ -1,128 +1,437 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Ghép Avatar THPT Tăng Bạt Hổ</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    body {
-        font-family: Arial;
-        background: #f2f2f2;
-        text-align: center;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tạo Thiệp Mời — Chuyến Tàu Về Thanh Xuân</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Be Vietnam Pro', sans-serif; background: #E4EDF5; min-height: 100vh; }
+    .page-header { background: linear-gradient(135deg, #1C3557 0%, #2A5070 100%); text-align: center; padding: 20px 24px 18px; color: white; }
+    .page-header .tag { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 3px 14px; font-size: 11.5px; font-weight: 600; color: #FFD580; margin-bottom: 8px; }
+    .page-header h1 { font-size: 22px; font-weight: 800; color: #FF8C3A; }
+    .page-header p  { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+    .main { max-width: 1080px; margin: 0 auto; padding: 26px 20px 40px; display: flex; gap: 26px; align-items: flex-start; }
+    .form-panel { width: 330px; flex-shrink: 0; background: white; border-radius: 20px; padding: 22px 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
+    .field-label { font-size: 12px; font-weight: 700; color: #1C3557; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .upload-zone { border: 2px dashed #A8C4D8; border-radius: 12px; padding: 16px 14px; text-align: center; cursor: pointer; background: #F0F6FA; transition: all .22s; margin-bottom: 16px; }
+    .upload-zone:hover { border-color: #2A7AB8; background: #E4F0F8; }
+    .upload-zone.has-file { border-style: solid; border-color: #2A7AB8; }
+    .upload-zone .uicon { font-size: 26px; margin-bottom: 5px; }
+    .upload-zone .utitle { font-size: 13px; font-weight: 700; color: #1C6090; }
+    .upload-zone .utitle span { font-weight: 400; color: #888; }
+    .upload-zone .usub { font-size: 11px; color: #AAA; margin-top: 2px; }
+    #photoInput { display: none; }
+    .crop-wrap { display: none; flex-direction: column; align-items: center; gap: 10px; background: #F0F6FA; border-radius: 12px; padding: 12px 10px; margin-bottom: 16px; }
+    .crop-wrap.show { display: flex; }
+    .crop-hint { font-size: 11px; color: #888; text-align: center; }
+    #cropCanvas { border-radius: 10px; border: 2px solid #C8DDE8; cursor: grab; touch-action: none; display: block; }
+    #cropCanvas:active { cursor: grabbing; }
+    .zoom-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .zoom-row span { font-size: 15px; flex-shrink: 0; }
+    .zoom-row input[type=range] { flex: 1; accent-color: #1C6090; cursor: pointer; }
+    .zoom-val { font-size: 11px; color: #888; width: 28px; text-align: right; flex-shrink: 0; }
+    .text-input { width: 100%; padding: 11px 14px; border: 1.5px solid #D8E4EC; border-radius: 10px; font-family: inherit; font-size: 15px; color: #1C3557; background: #FAFCFE; transition: border-color .2s; margin-bottom: 16px; }
+    .text-input:focus { outline: none; border-color: #2A7AB8; background: white; }
+    .text-input::placeholder { color: #B8C8D8; }
+    .class-select { width: 100%; padding: 11px 14px; border: 1.5px solid #D8E4EC; border-radius: 10px; font-family: inherit; font-size: 15px; color: #1C3557; background: #FAFCFE url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231C3557' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center; appearance: none; cursor: pointer; transition: border-color .2s; margin-bottom: 20px; }
+    .class-select:focus { outline: none; border-color: #2A7AB8; background-color: white; }
+    .btn-download { width: 100%; padding: 14px; background: #27AE60; color: white; border: none; border-radius: 12px; font-family: inherit; font-weight: 700; font-size: 16px; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 7px; }
+    .btn-download:hover { background: #1E9450; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(39,174,96,0.35); }
+    .btn-note { text-align: center; font-size: 11px; color: #AAA; }
+    .preview-panel { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+    #cardCanvas { width: 100%; max-width: 460px; border-radius: 16px; display: block; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
+    .preview-caption { margin-top: 10px; font-size: 12px; color: #8A9AAA; text-align: center; }
+    /* Calibration panel */
+    #calibPanel { display: none; background: #1C3557; color: white; padding: 16px 20px; border-radius: 12px; margin-top: 14px; width: 100%; max-width: 460px; }
+    #calibPanel h3 { font-size: 13px; margin-bottom: 12px; color: #FFD580; }
+    .cr { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+    .cr label { width: 90px; flex-shrink: 0; }
+    .cr input[type=range] { flex: 1; accent-color: #FFD580; }
+    .cval { width: 44px; font-family: monospace; font-size: 11px; text-align: right; }
+    .calib-copy { margin-top: 10px; width: 100%; padding: 8px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; color: white; font-family: monospace; font-size: 11px; cursor: pointer; }
+    .calib-copy:hover { background: rgba(255,255,255,.2); }
+    .page-footer { text-align: center; padding: 12px 24px 32px; max-width: 680px; margin: 0 auto; }
+    .page-footer .instructions { font-size: 13px; color: #5A6A7A; line-height: 1.7; margin-bottom: 10px; }
+    .page-footer .instructions strong { color: #1C3557; }
+    .page-footer .support { font-size: 13px; color: #5A6A7A; }
+    .page-footer .support a { color: #0068FF; font-weight: 700; text-decoration: none; }
+    .page-footer .support a:hover { text-decoration: underline; }
+    .popup-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+    .popup-overlay.show { display: flex; }
+    .popup-box { background: white; border-radius: 20px; padding: 34px 26px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 24px 64px rgba(0,0,0,.3); animation: popIn .3s ease; }
+    @keyframes popIn { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+    .popup-emoji { font-size: 50px; margin-bottom: 14px; }
+    .popup-box h2 { font-size: 20px; color: #1C3557; margin-bottom: 10px; }
+    .popup-box p  { font-size: 14px; color: #666; line-height: 1.7; }
+    .zalo-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; color: #0068FF; font-weight: 600; text-decoration: none; font-size: 14px; padding: 8px 16px; background: #EEF3FF; border-radius: 8px; }
+    .zalo-link:hover { background: #DCE8FF; }
+    .popup-close { margin-top: 14px; background: #1C3557; color: white; border: none; border-radius: 10px; padding: 10px 28px; font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .popup-close:hover { background: #0F2440; }
+    @media (max-width: 720px) {
+      .main { flex-direction: column; gap: 20px; padding: 20px 16px 36px; }
+      .form-panel { width: 100%; }
+      #cardCanvas { max-width: 100%; }
     }
-    h1 { margin-top: 20px; }
-    canvas {
-        border: 2px dashed #aaa;
-        margin-top: 15px;
-        max-width: 100%;
-    }
-    .controls { margin-top: 15px; }
-    button, input {
-        margin: 5px;
-        padding: 10px;
-        font-size: 14px;
-    }
-</style>
+  </style>
 </head>
 <body>
 
-<h1>GHÉP AVATAR - THPT TĂNG BẠT HỔ</h1>
-
-<input type="file" id="upload">
-
-<div class="controls">
-    <button onclick="zoomIn()">Zoom +</button>
-    <button onclick="zoomOut()">Zoom -</button>
-    <button onclick="download()">Tải ảnh 4K</button>
+<div class="page-header">
+  <div class="tag">THPT TĂNG BẠT HỔ · Niên khoá 2003–2006</div>
+  <h1>Tạo Thiệp Mời Cá Nhân</h1>
+  <p>Chuyến Tàu Về Thanh Xuân · 20 năm · 25.07.2026</p>
 </div>
 
-<canvas id="canvas" width="1080" height="1080"></canvas>
+<div class="main">
+  <div class="form-panel">
+    <div class="field-label">📸 Ảnh của bạn</div>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('photoInput').click()">
+      <div id="upPH">
+        <div class="uicon">🖼</div>
+        <div class="utitle">Nhấn để chọn ảnh <span>hoặc kéo thả</span></div>
+        <div class="usub">JPG · PNG · WEBP ≤ 10MB</div>
+      </div>
+      <div id="upOK" style="display:none;font-size:13px;color:#1C6090;font-weight:700;">✓ Đã tải — Chỉnh khung bên dưới</div>
+    </div>
+    <input type="file" id="photoInput" accept="image/*">
+    <div class="crop-wrap" id="cropWrap">
+      <div class="crop-hint">Kéo để di chuyển · Cuộn chuột hoặc kéo thanh để zoom</div>
+      <canvas id="cropCanvas" width="270" height="270"></canvas>
+      <div class="zoom-row">
+        <span>🔍</span>
+        <input type="range" id="zoomSlider" min="1" max="5" step="0.01" value="1">
+        <div class="zoom-val" id="zoomVal">1×</div>
+      </div>
+    </div>
+    <div class="field-label">✏️ Tên / Nickname</div>
+    <input type="text" class="text-input" id="nameInput" placeholder="Nguyễn Văn A" maxlength="36" oninput="scheduleRender()">
+    <div class="field-label">🎓 Lớp</div>
+    <select class="class-select" id="classSelect" onchange="scheduleRender()">
+      <option value="">– – Chọn lớp – –</option>
+      <option>12A1</option><option>12A2</option><option>12A3</option>
+      <option>12A4</option><option>12A5</option><option>12A6</option>
+      <option>12A7</option><option>12A8</option><option>12A9</option>
+      <option>12A10</option>
+    </select>
+    <button class="btn-download" onclick="downloadCard()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Tải Thiệp Về Máy
+    </button>
+    <div class="btn-note">PNG · chất lượng cao · 1860×2622px</div>
+  </div>
+
+  <div class="preview-panel">
+    <canvas id="cardCanvas"></canvas>
+    <div class="preview-caption">← Xem trước thiệp mời · cập nhật tức thì</div>
+    <div id="calibPanel">
+      <h3>🎯 Hiệu chỉnh vị trí overlay — mở URL: ?calibrate=1</h3>
+      <div class="cr"><label>Tâm X (vòng)</label><input type="range" id="cCX" min="0" max="100" step="0.1" value="26.3" oninput="updateCalib()"><span class="cval" id="vCX">26.3%</span></div>
+      <div class="cr"><label>Tâm Y (vòng)</label><input type="range" id="cCY" min="0" max="100" step="0.1" value="57.6" oninput="updateCalib()"><span class="cval" id="vCY">57.6%</span></div>
+      <div class="cr"><label>Bán kính</label><input type="range" id="cCR" min="1" max="20" step="0.1" value="10.8" oninput="updateCalib()"><span class="cval" id="vCR">10.8%</span></div>
+      <div class="cr"><label>Tên X</label><input type="range" id="cNX" min="0" max="100" step="0.1" value="38.7" oninput="updateCalib()"><span class="cval" id="vNX">38.7%</span></div>
+      <div class="cr"><label>Tên Y</label><input type="range" id="cNY" min="0" max="100" step="0.1" value="56.4" oninput="updateCalib()"><span class="cval" id="vNY">56.4%</span></div>
+      <div class="cr"><label>Lớp Y</label><input type="range" id="cLY" min="0" max="100" step="0.1" value="59.9" oninput="updateCalib()"><span class="cval" id="vLY">59.9%</span></div>
+      <div class="cr"><label>Chiều rộng tên</label><input type="range" id="cNW" min="10" max="70" step="0.5" value="44" oninput="updateCalib()"><span class="cval" id="vNW">44%</span></div>
+      <button class="calib-copy" onclick="copyCalib()">📋 Copy giá trị → paste vào code (dòng POS)</button>
+    </div>
+  </div>
+</div>
+
+<div class="page-footer">
+  <div class="instructions">
+    <strong>Cách tạo thiệp:</strong> Nhấn chọn ảnh → kéo/zoom để căn vùng muốn hiển thị → nhập tên &amp; chọn lớp →
+    nhấn <strong>Tải Thiệp Về Máy</strong> → đăng lên Facebook / Zalo kèm hashtag <strong>#TăngBạtHổ20Năm</strong> 🚂
+  </div>
+  <div class="support">
+    Nếu gặp khó khăn, nhấn Zalo
+    <a href="https://zalo.me/0974262599" target="_blank">0974.262.599</a> để được hỗ trợ.
+  </div>
+</div>
+
+<div class="popup-overlay" id="thanksPopup">
+  <div class="popup-box">
+    <div class="popup-emoji">🎉</div>
+    <h2>Cảm ơn bạn!</h2>
+    <p>Cảm ơn bạn vì đã chung tay lan toả chương trình đến bạn bè cùng niên khoá.<br><br><strong>Chúc bạn ngày mới tươi vui!</strong></p>
+    <a href="https://zalo.me/0974262599" class="zalo-link" target="_blank">💬 Hỗ trợ kỹ thuật / Báo cáo sự cố</a><br>
+    <button class="popup-close" onclick="document.getElementById('thanksPopup').classList.remove('show')">Đóng</button>
+  </div>
+</div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-let userImg = new Image();
-let frameImg = new Image();
-
-let scale = 1;
-let posX = 0;
-let posY = 0;
-
-let dragging = false;
-let startX, startY;
-
-frameImg.src = "frame.png";
-frameImg.onload = draw;
-
-document.getElementById("upload").addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-        userImg.src = event.target.result;
-    };
-
-    reader.readAsDataURL(file);
-});
-
-userImg.onload = function() {
-    scale = 1;
-    posX = canvas.width / 2;
-    posY = canvas.height / 2;
-    draw();
+// ============================================================
+// VỊ TRÍ OVERLAY — chỉnh các % này nếu cần căn chỉnh
+// Dùng URL ?calibrate=1 để căn chỉnh trực quan
+// ============================================================
+let POS = {
+  cX: 26.3,  // tâm vòng tròn ảnh, % theo chiều ngang
+  cY: 57.6,  // tâm vòng tròn ảnh, % theo chiều dọc
+  cR: 10.8,  // bán kính, % chiều ngang
+  nX: 38.7,  // tên: cạnh trái, %
+  nY: 56.4,  // tên: baseline, %
+  lY: 59.9,  // lớp: baseline, %
+  nW: 44.0,  // tên: chiều rộng tối đa, %
 };
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+let cropImg=null, cropZoom=1, cropMinZoom=1, cropOX=0, cropOY=0;
+let isDrag=false, dsx=0, dsy=0, doX=0, doY=0;
+let templateImg=null, renderTimer=null;
+const CROP_SIZE=270;
+const isCalib=new URLSearchParams(location.search).get('calibrate')==='1';
 
-    if (userImg.src) {
-        const w = userImg.width * scale;
-        const h = userImg.height * scale;
-        ctx.drawImage(userImg, posX - w/2, posY - h/2, w, h);
-    }
+// Auto-load template.png từ cùng thư mục
+(function(){
+  const img=new Image();
+  img.onload=function(){ templateImg=img; scheduleRender(); };
+  img.onerror=()=>{ console.warn('Không tìm thấy template.png'); scheduleRender(); };
+  img.src='./template.png';
+})();
 
-    ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+if(isCalib) document.getElementById('calibPanel').style.display='block';
+
+function updateCalib(){
+  POS={
+    cX:parseFloat(document.getElementById('cCX').value),
+    cY:parseFloat(document.getElementById('cCY').value),
+    cR:parseFloat(document.getElementById('cCR').value),
+    nX:parseFloat(document.getElementById('cNX').value),
+    nY:parseFloat(document.getElementById('cNY').value),
+    lY:parseFloat(document.getElementById('cLY').value),
+    nW:parseFloat(document.getElementById('cNW').value),
+  };
+  ['CX','CY','CR','NX','NY','LY','NW'].forEach(k=>{
+    const key=k==='LY'?'lY':k==='NW'?'nW':k[0].toLowerCase()+k[1];
+    const val=POS[key]||POS[k.toLowerCase()];
+    document.getElementById('v'+k).textContent=(POS['c'+k[1]]||POS['n'+k[1]]||POS['l'+k[1]]||Object.values(POS)[['CX','CY','CR','NX','NY','LY','NW'].indexOf(k)]).toFixed(1)+'%';
+  });
+  // simpler update
+  document.getElementById('vCX').textContent=POS.cX.toFixed(1)+'%';
+  document.getElementById('vCY').textContent=POS.cY.toFixed(1)+'%';
+  document.getElementById('vCR').textContent=POS.cR.toFixed(1)+'%';
+  document.getElementById('vNX').textContent=POS.nX.toFixed(1)+'%';
+  document.getElementById('vNY').textContent=POS.nY.toFixed(1)+'%';
+  document.getElementById('vLY').textContent=POS.lY.toFixed(1)+'%';
+  document.getElementById('vNW').textContent=POS.nW.toFixed(1)+'%';
+  scheduleRender();
+}
+function copyCalib(){
+  const t=`let POS = {\n  cX:${POS.cX}, cY:${POS.cY}, cR:${POS.cR},\n  nX:${POS.nX}, nY:${POS.nY}, lY:${POS.lY}, nW:${POS.nW},\n};`;
+  navigator.clipboard.writeText(t).then(()=>alert('✓ Đã copy! Paste vào dòng POS trong code.'));
 }
 
-function zoomIn() { scale += 0.1; draw(); }
-function zoomOut() { scale -= 0.1; draw(); }
-
-canvas.addEventListener("mousedown", e => {
-    dragging = true;
-    startX = e.offsetX - posX;
-    startY = e.offsetY - posY;
+// Photo upload
+const CC=document.getElementById('cropCanvas'), CX=CC.getContext('2d');
+document.getElementById('photoInput').addEventListener('change',function(e){
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    const img=new Image();
+    img.onload=function(){
+      cropImg=img;
+      const fit=Math.max(CROP_SIZE/img.width,CROP_SIZE/img.height);
+      cropMinZoom=fit; cropZoom=fit;
+      cropOX=(CROP_SIZE-img.width*fit)/2; cropOY=(CROP_SIZE-img.height*fit)/2;
+      const sl=document.getElementById('zoomSlider');
+      sl.min=fit; sl.max=Math.max(fit*5,5); sl.value=fit;
+      document.getElementById('zoomVal').textContent=fit.toFixed(1)+'×';
+      document.getElementById('uploadZone').classList.add('has-file');
+      document.getElementById('upPH').style.display='none';
+      document.getElementById('upOK').style.display='block';
+      document.getElementById('cropWrap').classList.add('show');
+      drawCrop(); scheduleRender();
+    };
+    img.src=ev.target.result;
+  };
+  rd.readAsDataURL(f);
 });
 
-canvas.addEventListener("mousemove", e => {
-    if (dragging) {
-        posX = e.offsetX - startX;
-        posY = e.offsetY - startY;
-        draw();
-    }
+// Drag & drop
+const uz=document.getElementById('uploadZone');
+uz.addEventListener('dragover',e=>{e.preventDefault();uz.style.borderColor='#2A7AB8';});
+uz.addEventListener('dragleave',()=>uz.style.borderColor='');
+uz.addEventListener('drop',e=>{
+  e.preventDefault(); uz.style.borderColor='';
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/')){
+    const dt=new DataTransfer(); dt.items.add(f);
+    document.getElementById('photoInput').files=dt.files;
+    document.getElementById('photoInput').dispatchEvent(new Event('change'));
+  }
 });
 
-canvas.addEventListener("mouseup", () => dragging = false);
-canvas.addEventListener("mouseleave", () => dragging = false);
-
-function download() {
-    const exportCanvas = document.createElement("canvas");
-    exportCanvas.width = 2160;
-    exportCanvas.height = 2160;
-    const ectx = exportCanvas.getContext("2d");
-
-    const w = userImg.width * scale * 2;
-    const h = userImg.height * scale * 2;
-
-    ectx.drawImage(userImg, (posX - userImg.width/2)*2, (posY - userImg.height/2)*2, w, h);
-    ectx.drawImage(frameImg, 0, 0, 2160, 2160);
-
-    const link = document.createElement("a");
-    link.download = "avatar-4k.png";
-    link.href = exportCanvas.toDataURL();
-    link.click();
+function drawCrop(){
+  if(!cropImg) return;
+  CX.clearRect(0,0,CROP_SIZE,CROP_SIZE);
+  CX.drawImage(cropImg,cropOX,cropOY,cropImg.width*cropZoom,cropImg.height*cropZoom);
+  CX.save();
+  CX.fillStyle='rgba(0,0,0,0.48)'; CX.fillRect(0,0,CROP_SIZE,CROP_SIZE);
+  CX.globalCompositeOperation='destination-out';
+  CX.beginPath(); CX.arc(CROP_SIZE/2,CROP_SIZE/2,CROP_SIZE/2-5,0,Math.PI*2); CX.fill();
+  CX.restore();
+  CX.strokeStyle='rgba(255,255,255,.9)'; CX.lineWidth=3;
+  CX.beginPath(); CX.arc(CROP_SIZE/2,CROP_SIZE/2,CROP_SIZE/2-5,0,Math.PI*2); CX.stroke();
 }
+
+document.getElementById('zoomSlider').addEventListener('input',function(){
+  const z2=parseFloat(this.value), half=CROP_SIZE/2;
+  const ix=(half-cropOX)/cropZoom, iy=(half-cropOY)/cropZoom;
+  cropZoom=z2; cropOX=half-ix*z2; cropOY=half-iy*z2;
+  document.getElementById('zoomVal').textContent=z2.toFixed(1)+'×';
+  drawCrop(); scheduleRender();
+});
+CC.addEventListener('mousedown',e=>{isDrag=true;const r=CC.getBoundingClientRect(),s=CROP_SIZE/r.width;dsx=(e.clientX-r.left)*s;dsy=(e.clientY-r.top)*s;doX=cropOX;doY=cropOY;});
+document.addEventListener('mousemove',e=>{if(!isDrag)return;const r=CC.getBoundingClientRect(),s=CROP_SIZE/r.width;cropOX=doX+(e.clientX-r.left)*s-dsx;cropOY=doY+(e.clientY-r.top)*s-dsy;drawCrop();scheduleRender();});
+document.addEventListener('mouseup',()=>isDrag=false);
+CC.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const sl=document.getElementById('zoomSlider'),d=e.deltaY>0?-0.07:0.07;
+  const z2=Math.max(parseFloat(sl.min),Math.min(parseFloat(sl.max),cropZoom+d));
+  const r=CC.getBoundingClientRect(),s=CROP_SIZE/r.width;
+  const mx=(e.clientX-r.left)*s,my=(e.clientY-r.top)*s;
+  const ix=(mx-cropOX)/cropZoom,iy=(my-cropOY)/cropZoom;
+  cropZoom=z2;cropOX=mx-ix*z2;cropOY=my-iy*z2;
+  sl.value=z2;document.getElementById('zoomVal').textContent=z2.toFixed(1)+'×';
+  drawCrop();scheduleRender();
+},{passive:false});
+CC.addEventListener('touchstart',e=>{e.preventDefault();if(e.touches.length===1){isDrag=true;const r=CC.getBoundingClientRect(),s=CROP_SIZE/r.width;dsx=(e.touches[0].clientX-r.left)*s;dsy=(e.touches[0].clientY-r.top)*s;doX=cropOX;doY=cropOY;}},{passive:false});
+CC.addEventListener('touchmove',e=>{e.preventDefault();if(!isDrag||e.touches.length!==1)return;const r=CC.getBoundingClientRect(),s=CROP_SIZE/r.width;cropOX=doX+(e.touches[0].clientX-r.left)*s-dsx;cropOY=doY+(e.touches[0].clientY-r.top)*s-dsy;drawCrop();scheduleRender();},{passive:false});
+CC.addEventListener('touchend',()=>isDrag=false);
+
+function getCroppedPhoto(size){
+  const off=document.createElement('canvas');
+  off.width=off.height=size;
+  const ctx=off.getContext('2d');
+  ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.clip();
+  const sc=size/CROP_SIZE;
+  ctx.drawImage(cropImg,cropOX*sc,cropOY*sc,cropImg.width*cropZoom*sc,cropImg.height*cropZoom*sc);
+  return off;
+}
+
+function scheduleRender(){ clearTimeout(renderTimer); renderTimer=setTimeout(renderCard,60); }
+
+async function renderCard(){
+  await document.fonts.ready;
+  const canvas=document.getElementById('cardCanvas');
+  const name=document.getElementById('nameInput').value.trim()||'TÊN CỦA BẠN';
+  const cls=document.getElementById('classSelect').value;
+  if(templateImg){
+    const TW=templateImg.naturalWidth||templateImg.width;
+    const TH=templateImg.naturalHeight||templateImg.height;
+    canvas.width=TW; canvas.height=TH;
+    drawOnTemplate(canvas.getContext('2d'),TW,TH,name,cls);
+  } else {
+    canvas.width=790; canvas.height=1120;
+    drawFallback(canvas.getContext('2d'),790,1120,name,cls);
+  }
+}
+
+function drawOnTemplate(ctx,W,H,name,cls){
+  ctx.drawImage(templateImg,0,0,W,H);
+  const cX=W*POS.cX/100, cY=H*POS.cY/100, cR=W*POS.cR/100;
+  const nX=W*POS.nX/100, nY=H*POS.nY/100, nW=W*POS.nW/100;
+
+  // Ảnh tròn
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cX,cY,cR,0,Math.PI*2); ctx.clip();
+  if(cropImg){ ctx.drawImage(getCroppedPhoto(Math.round(cR*2)),cX-cR,cY-cR,cR*2,cR*2); }
+  else {
+    const pg=ctx.createLinearGradient(cX-cR,cY-cR,cX-cR,cY+cR);
+    pg.addColorStop(0,'#C0DDED');pg.addColorStop(.52,'#D8EEF8');
+    pg.addColorStop(.52,'#8CC873');pg.addColorStop(1,'#68A850');
+    ctx.fillStyle=pg; ctx.fillRect(cX-cR,cY-cR,cR*2,cR*2);
+  }
+  ctx.restore();
+
+  // Markers khi calibrate
+  if(isCalib){
+    ctx.strokeStyle='rgba(255,0,0,.8)';ctx.lineWidth=6;
+    ctx.beginPath();ctx.arc(cX,cY,cR,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='red';ctx.beginPath();ctx.arc(cX,cY,10,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(0,200,80,.8)';ctx.lineWidth=4;
+    ctx.strokeRect(nX,nY-40,nW,50);
+  }
+
+  // Tên
+  const fs=Math.round(W*0.036);
+  ctx.font=`700 ${fs}px "Be Vietnam Pro",sans-serif`;
+  ctx.textAlign='left';
+  const lines=wrapLines(ctx,name,nW);
+  ctx.save();ctx.globalAlpha=0.72;ctx.fillStyle='white';
+  rrect(ctx,nX-6,nY-fs-4,nW+12,lines.length*fs*1.3+14,5);ctx.fill();ctx.restore();
+  ctx.fillStyle='#1A3050';
+  lines.forEach((ln,i)=>ctx.fillText(ln,nX,nY+i*fs*1.3));
+
+  // Lớp
+  const lfs=Math.round(W*0.030);
+  const lActY=nY+(lines.length-1)*fs*1.3+lfs*2.1;
+  const prefix='Một cục cưng của tập thể ';
+  ctx.font=`400 ${lfs}px "Be Vietnam Pro",sans-serif`;
+  ctx.fillStyle='#4A5A6A'; ctx.fillText(prefix,nX,lActY);
+  const pw=ctx.measureText(prefix).width;
+  ctx.font=`700 ${Math.round(lfs*1.12)}px "Be Vietnam Pro",sans-serif`;
+  ctx.fillStyle='#C85A0A'; ctx.fillText(cls||'___',nX+pw,lActY);
+}
+
+function drawFallback(ctx,W,H,name,cls){
+  const sg=ctx.createLinearGradient(0,0,0,H*.5);
+  sg.addColorStop(0,'#C4E0F0');sg.addColorStop(1,'#EAF5FF');
+  ctx.fillStyle=sg;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#F8FBFF';ctx.fillRect(0,H*.5,W,H*.5);
+  ctx.fillStyle='#1C3557';ctx.font='800 28px "Be Vietnam Pro",sans-serif';ctx.textAlign='center';
+  ctx.fillText('TRƯỜNG THPT TĂNG BẠT HỔ',W/2,58);
+  ctx.fillStyle='#5A6878';ctx.font='500 16px "Be Vietnam Pro",sans-serif';ctx.fillText('MỜI BẠN SẴN SÀNG CHO',W/2,100);
+  ctx.save();ctx.fillStyle='#D45A08';ctx.font='900 90px "Be Vietnam Pro",sans-serif';
+  ctx.shadowColor='rgba(200,80,8,.2)';ctx.shadowBlur=10;ctx.shadowOffsetY=4;
+  ctx.fillText('CHUYẾN TÀU',W/2,200);ctx.fillText('VỀ THANH XUÂN',W/2,295);ctx.restore();
+  ctx.fillStyle='#1C3557';ctx.font='700 20px "Be Vietnam Pro",sans-serif';ctx.textAlign='center';ctx.fillText('20 năm ngày ra trường',W/2,348);
+  ctx.fillStyle='#6A7888';ctx.font='400 16px "Be Vietnam Pro",sans-serif';ctx.fillText('Niên khoá 2003-2006',W/2,374);
+  ctx.fillStyle='#2A5070';pill(ctx,W/2-100,390,200,42,21);ctx.fill();
+  ctx.fillStyle='white';ctx.font='700 20px "Be Vietnam Pro",sans-serif';ctx.textAlign='center';ctx.fillText('25.07.2026',W/2,417);
+  const cx=195,cy=645,cr=80;
+  ctx.save();ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);ctx.clip();
+  if(cropImg){ctx.drawImage(getCroppedPhoto(cr*2),cx-cr,cy-cr,cr*2,cr*2);}
+  else{const pg=ctx.createLinearGradient(cx-cr,cy-cr,cx-cr,cy+cr);pg.addColorStop(0,'#C0DDED');pg.addColorStop(.52,'#D8EEF8');pg.addColorStop(.52,'#8CC873');pg.addColorStop(1,'#68A850');ctx.fillStyle=pg;ctx.fillRect(cx-cr,cy-cr,cr*2,cr*2);}
+  ctx.restore();
+  ctx.strokeStyle='#A0C0D8';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,cr+2,0,Math.PI*2);ctx.stroke();
+  const tx=cx+cr+20,nmW=W-tx-24;
+  ctx.textAlign='left';ctx.fillStyle='#1C3557';ctx.font='700 24px "Be Vietnam Pro",sans-serif';
+  const nls=wrapLines(ctx,name,nmW);
+  nls.forEach((ln,i)=>ctx.fillText(ln,tx,625+i*30));
+  const ly=625+nls.length*30+14;
+  ctx.fillStyle='#4A5A6A';ctx.font='400 14px "Be Vietnam Pro",sans-serif';ctx.fillText('Một cục cưng của tập thể ',tx,ly);
+  const pw2=ctx.measureText('Một cục cưng của tập thể ').width;
+  ctx.fillStyle='#C85A0A';ctx.font='700 16px "Be Vietnam Pro",sans-serif';ctx.fillText(cls||'___',tx+pw2,ly);
+}
+
+function wrapLines(ctx,text,maxW){
+  const words=text.split(' ');const lines=[];let cur='';
+  for(const w of words){const t=cur?cur+' '+w:w;if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=w;}else cur=t;}
+  if(cur)lines.push(cur);return lines.length?lines:[''];
+}
+function pill(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+async function downloadCard(){
+  await document.fonts.ready;
+  const tmp=document.createElement('canvas');
+  const name=document.getElementById('nameInput').value.trim()||'TÊN CỦA BẠN';
+  const cls=document.getElementById('classSelect').value;
+  if(templateImg){
+    const TW=templateImg.naturalWidth||templateImg.width;
+    const TH=templateImg.naturalHeight||templateImg.height;
+    tmp.width=TW;tmp.height=TH;
+    drawOnTemplate(tmp.getContext('2d'),TW,TH,name,cls);
+  } else {tmp.width=790;tmp.height=1120;drawFallback(tmp.getContext('2d'),790,1120,name,cls);}
+  const a=document.createElement('a');
+  a.download='thiep-moi-chuyen-tau-ve-thanh-xuan.png';
+  a.href=tmp.toDataURL('image/png');a.click();
+  setTimeout(()=>document.getElementById('thanksPopup').classList.add('show'),600);
+}
+
+scheduleRender();
 </script>
-
 </body>
 </html>
